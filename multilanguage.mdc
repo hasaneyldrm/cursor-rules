@@ -1,0 +1,140 @@
+# Multilingual App Development Guidelines
+
+## 1. Translation File Structure
+- All translations must be stored in `src/translations/translations.ts`
+- Create a separate object for each language
+- Translation keys should be meaningful and consistent (e.g., "app_name", "continue_button")
+- Group translations by screen/component (e.g., "// FirstScreen", "// GenderScreen")
+- When adding a new language, provide translations for all existing keys
+
+## 2. Language Context Usage
+- Import the `useLanguage` hook in every component:
+  ```typescript
+  import { useLanguage } from '../context/LanguageContext';
+  ```
+- Call the hook inside the component:
+  ```typescript
+  const { t, language, setLanguage } = useLanguage();
+  ```
+- Use the translation function for all text:
+  ```typescript
+  <Text>{t('key_name')}</Text>
+  ```
+
+## 3. Dynamic Content and Formatting
+- Use template literals for dynamic content:
+  ```typescript
+  `${t('prefix')} ${dynamicValue} ${t('suffix')}`
+  ```
+- Use separate translation keys for colored or specially formatted text:
+  ```typescript
+  <Text style={styles.black}>{t('title_black')}</Text>
+  <Text style={styles.orange}>{t('title_orange')}</Text>
+  ```
+
+## 4. Adding New Screens/Components
+- Create translation keys for all text when adding a new screen/component
+- Translation keys should start with the screen/component name (e.g., "profile_title", "profile_description")
+- Add translations for all supported languages
+
+## 5. Language Detection and Switching
+- Automatically detect device language when the app first opens
+- Make language switching option easily accessible in the UI
+- Update all screens immediately when language is changed
+
+## 6. Error Handling
+- Use default language (en) when a translation is not found
+- Display the key value when a translation key is completely missing
+- Log error messages to the console
+
+## 7. Performance Optimization
+- Use memoization to prevent unnecessary re-renders
+- Consider lazy loading for large translation files
+
+## 8. Testing
+- Write UI tests for each language
+- Add automated checks to detect missing translations
+- Test in different languages to ensure text lengths don't break the UI
+
+## 9. Steps for Adding a New Language
+1. Add a new language object to `translations.ts`
+2. Update the `LanguageType` type
+3. Add the display name to the `languageDisplayNames` object
+4. Provide translations for all translation keys
+
+## 10. Code Review Checklist
+- [ ] Are all texts using the translation function?
+- [ ] Have translation keys been created for newly added text?
+- [ ] Have translations been added for all supported languages?
+- [ ] Is dynamic content formatted correctly?
+- [ ] Do long texts break the UI in different languages?
+
+## 11. Implementation Examples
+
+### Basic Translation Usage
+```tsx
+import React from 'react';
+import { Text, View } from 'react-native';
+import { useLanguage } from '../context/LanguageContext';
+
+const MyComponent = () => {
+  const { t } = useLanguage();
+  
+  return (
+    <View>
+      <Text>{t('my_component_title')}</Text>
+      <Text>{t('my_component_description')}</Text>
+    </View>
+  );
+};
+```
+
+### Language Switching
+```tsx
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { useLanguage, LanguageType } from '../context/LanguageContext';
+
+const LanguageSwitcher = () => {
+  const { language, setLanguage, supportedLanguages, getLanguageDisplayName } = useLanguage();
+  
+  return (
+    <View>
+      {supportedLanguages.map((lang: LanguageType) => (
+        <TouchableOpacity 
+          key={lang}
+          onPress={() => setLanguage(lang)}
+          style={language === lang ? styles.selected : styles.normal}
+        >
+          <Text>{getLanguageDisplayName(lang)}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+```
+
+### Adding Translations
+```typescript
+// In src/translations/translations.ts
+
+export const translations: Translations = {
+  tr: {
+    // FirstScreen
+    "app_name": "Yemek Tarifleri",
+    "app_description": "Damak tadınıza uygun yemek tariflerini keşfedin",
+    
+    // New component
+    "my_component_title": "Bileşen Başlığı",
+    "my_component_description": "Bileşen açıklaması burada yer alır."
+  },
+  en: {
+    // FirstScreen
+    "app_name": "Food Recipes",
+    "app_description": "Discover recipes that suit your taste",
+    
+    // New component
+    "my_component_title": "Component Title",
+    "my_component_description": "Component description goes here."
+  }
+}; 
