@@ -1,0 +1,31 @@
+Rule 1: The Sacred Folder Structure (Separation of Concerns)
+Every file must be located in its designated folder according to its purpose. This ensures the project remains predictable and organized.
+
+src
+├── api/             # API clients and calls (Supabase, etc.)
+├── assets/          # Images, fonts, animations
+├── components/      # Reusable, pure UI components
+├── config/          # Environment variables and configuration
+├── constants/       # App-wide constants (route names, etc.)
+├── hooks/           # Custom React hooks
+├── navigation/      # React Navigation logic and routers
+├── screens/         # Screen components (Each screen can have its own folder)
+├── store/           # Redux Toolkit state management
+├── theme/           # Styling and theme (colors, fonts, spacing)
+├── types/           # Global TypeScript types
+└── utils/           # Helper functions (formatDate, validators, etc.)
+
+Rule 2: The Single Source of Truth
+All global application state (user session, settings, app data, etc.) will be managed exclusively using Redux Toolkit. The use of Context API for global state is forbidden. Context may only be used for library integrations (ThemeProvider) or for complex, component-specific state that does not require Redux.
+Rule 3: Modular Navigation (Clean Navigation)
+The App.tsx file must remain clean, containing nothing more than provider wrappers and the main navigation container. All navigation graphs, screen definitions, and routing decisions will be managed modularly within the src/navigation folder (e.g., AuthNavigator, AppNavigator, RootNavigator).
+Rule 4: Consistent and Scalable Styling
+styled-components will be the library of choice for all styling.
+All design decisions, such as colors, fonts, and spacing, will be sourced from theme objects located in the src/theme folder.
+The use of the traditional StyleSheet.create will be avoided, except in rare cases where performance is an absolute priority.
+Rule 5: Lean and Purposeful Dependencies
+Before adding a new library, an evaluation will be made to determine if the problem can be solved with existing tools. A single, well-vetted library will be chosen for each specific function (e.g., image picker, notifications). Library duplication and unnecessary packages, as seen in the lscursor project, will be avoided.
+Rule 6: Clean Code Discipline
+Absolute Imports: Absolute paths configured via tsconfig.json and babel.config.js (e.g., @/components/Button) will be used throughout the project instead of relative paths like ../../.
+Strict Typing: The use of the any type will be actively avoided. The project will aim for full type-safety from the beginning.
+Descriptive Naming: Variables, functions, components, and files will have clear, descriptive names that explain their purpose.
