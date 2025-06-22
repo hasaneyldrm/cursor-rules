@@ -1,0 +1,60 @@
+Hybrid Storage Pattern Rules (Redux + AsyncStorage)
+CORE APPROACH
+Use Redux and AsyncStorage together. Redux handles UI state and caching, AsyncStorage handles persistence. On app start, load data from AsyncStorage to Redux once. All reads come from Redux instantly. All writes use optimistic UI first, then save to AsyncStorage in background.
+SLICE STRUCTURE
+Create one slice file per data type. Name it dataTypeSlice.ts. Every slice needs 5 async thunks: loadFromStorage, add, remove, update, refresh. Also needs 3 optimistic actions: optimisticAdd, optimisticRemove, optimisticUpdate.
+State structure is always: items array, loading boolean, error string, initialized boolean, lastSync timestamp. Same for every data type.
+ASYNC THUNK RULES
+loadFromStorage only runs on app start. Gets data from AsyncStorage, loads into Redux. Logs to console.
+add thunk creates new item. Saves to AsyncStorage first, returns formatted data to Redux if successful. Shows meaningful error if fails.
+remove thunk deletes item. Removes from AsyncStorage, returns item ID to Redux if successful.
+update thunk modifies item. Finds item in AsyncStorage, updates it, returns update info to Redux.
+refresh thunk bypasses cache. Clears storage cache, reloads data fresh.
+OPTIMISTIC UI RULES
+Every CRUD operation runs optimistic action first. Updates Redux state immediately, UI responds instantly. Real operation happens in background. If operation fails, revert optimistic update.
+optimisticAdd adds item to list immediately. optimisticRemove removes item from list immediately. optimisticUpdate updates item immediately.
+STORAGE SERVICE RULES
+Add methods to storage.ts for each data type. getAll method checks cache first, if empty gets from AsyncStorage, saves to cache.
+save method gets existing list, adds or updates item, saves to AsyncStorage, updates cache.
+delete method filters existing list, saves to AsyncStorage, updates cache.
+Add cache invalidation methods to cache object.
+COMPONENT USAGE RULES
+Every component uses useSelector to get data from Redux. Uses useDispatch to trigger actions. Error handling with useEffect, shows toast if error exists, calls clearError action.
+CRUD operations follow standard pattern: optimistic action, background async thunk, error handling, success feedback.
+Check loading states. If initialized is false and loading is true, show loading. If items empty and initialized is true, show empty state.
+APP INITIALIZATION RULES
+AppInitializer component in App.tsx runs loadFromStorage thunk for every data type. Loads in parallel using promises array. Writes console logs.
+Add every data type reducer to store. Include in RootState type.
+NAMING CONVENTION RULES
+Slice files are dataTypeSlice.ts format. Interface names are PascalCase. State names are dataTypeState format.
+Action names use load, add, remove, update, refresh prefixes. Optimistic actions use optimistic prefix.
+AsyncStorage keys are @logpressai_datatypes format. Cache keys are DATATYPES_KEY format.
+Console log messages follow standard format. Operation emoji, Redux prefix, meaningful message.
+ERROR HANDLING RULES
+Every async thunk uses try-catch. Shows meaningful error message. Updates error state in slice.
+Components listen to error state with useEffect. Shows toast notification if error exists. Dispatches clearError action.
+Handle different error types: network error, AsyncStorage error, validation error.
+LOADING STATE RULES
+Initial loading only shows on app start. Check initialized false and loading true combination.
+Refresh loading managed with separate state. Use RefreshControl component.
+Background operations don't show loading, only use optimistic UI.
+REFRESH PATTERN RULES
+Add RefreshControl component to every list screen. onRefresh method calls refresh thunk. Invalidates cache, reloads data fresh.
+Manual refresh buttons use same pattern.
+CACHE MANAGEMENT RULES
+Add cache invalidation method for every data type. TTL duration is 5 minutes. Log cache hit/miss to console.
+Cache clears on: refresh, app restart, manual invalidation.
+FUTURE DB SYNC PREPARATION RULES
+Leave comment placeholder for DB sync in every async thunk. Keep infrastructure ready for network state control. Create basic structure for offline queue system.
+Add online/offline state detection. AsyncStorage when offline, DB sync when online.
+CHECKLIST FOR EVERY DATA TYPE
+Slice file created. 5 async thunks added. 3 optimistic actions added. Error handling exists. Storage methods added. Cache invalidation exists. Reducer added to store. Added to app initialization. Component pattern correct. Loading states implemented. Refresh pattern added. Console logs exist. Naming convention followed.
+PERFORMANCE RULES
+Optimize Redux selectors. Prevent unnecessary re-renders. Use memoization.
+AsyncStorage operations run on background thread. Don't block UI thread.
+Optimize cache hit rate. Keep frequently accessed data in cache.
+DEBUGGING RULES
+Use Redux DevTools. Track action history. Take state snapshots.
+Console logs are meaningful. Include operation type, timestamp, data summary.
+Implement error tracking. Log error details, stack trace, user context.
+These rules ensure consistent, performant and maintainable code for every data type.
